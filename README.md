@@ -1,9 +1,6 @@
-# MLOPS-Tutorials-DIY
 # MLOps Week 1 — Git Commands
 
-### 1. Repository setup
-
-## Repository setup
+## 1. Repository setup
 ```ruby
 cd <project-folder> -- open cmd/terminal in project folder
 cd C:\Users\n****\OneDrive\Desktop\mlops-week1
