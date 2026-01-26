@@ -1,12 +1,26 @@
 # MLOPS-Tutorials-DIY
 # MLOps Week 1 — Git Commands
 
+### 1. Repository setup
+
 ## Repository setup
 ```ruby
 cd <project-folder> -- open cmd/terminal in project folder
+cd C:\Users\n****\OneDrive\Desktop\mlops-week1
+```
+- __What it does:__ Navigate to your project folder. All Git commands must be run __inside your repo folder__.
+```ruby
 git init
+```
+- __What it does:__ Initializes Git. Creates the hidden ```.git``` folder that tracks all changes.
+```ruby
 git branch -m main   # rename default branch to main
 ```
+- __What it does:__ Renames the default branch ```master``` to ```main```. This is standard in modern Git workflows.
+```ruby
+git status
+```
+- __What it does:__ Shows the current branch and lists untracked or modified files. Always run before committing.
 
 ## Folder structure
 ```ruby
