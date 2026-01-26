@@ -37,6 +37,6 @@ git merge feature/<name>         # merge feature into main
 ```
 
 ## Handling merge conflicts
-# 1. Edit conflicting files
-# 2. git add <file>
-# 3. git commit -m "merge: resolve conflict"
+__1. Edit conflicting files__
+__2. git add <file>__
+__3. git commit -m "merge: resolve conflict"__
