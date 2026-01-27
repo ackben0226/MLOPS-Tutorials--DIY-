@@ -65,7 +65,7 @@ git branch
 
 ## 5. Working on the feature branch
 ```ruby
-gitstatus
+git status
 ```
 - __What it does:__ Shows which files changed and are ready to stage.
 ```ruby
