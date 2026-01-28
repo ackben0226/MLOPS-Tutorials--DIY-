@@ -14,26 +14,47 @@ git init
 git branch -m main   # rename default branch to main
 ```
 - __What it does:__ Renames the default branch ```master``` to ```main```. This is standard in modern Git workflows.
+<br/> __MLOps reason__
+- main represents ___production-ready, deployable ML systems__.
 ```ruby
 git status
 ```
 - __What it does:__ Shows the current branch and lists untracked or modified files. Always run before committing.
+<br/> __MLOps rule:__ Run this __before every commit or merge__ to avoid mistakes.
 
-## 2. Create folder structure
+## 2. Create integration branch (```develop```) — CRITICAL STEP
 ```ruby
-mkdir app, data, tests   # PowerShell: mkdir app, data, tests
+git checkout -b develop
+```
+__What it does:__ Creates and switches to the ```develop``` branch.
+<br/>**MLOps reason**
+- ```main``` = production
+- ```develop``` = integration / pre-production
+- All feature work merges into ```develop```, __not directly into__ ```main```
+This prevents breaking production ML systems.
+
+## 2. Create project folder structure
+```ruby
+mkdir app pipelines src tests
 ````
-- __What it does:__ Creates project subfolders for code, raw data, and tests.
+- __What it does:__ Creates folders for inference, training pipelines, shared logic, and tests.
+<br/> __MLOps reason__
+- Enforces system-level thinking, not notebook-based experimentation.
 ```ruby
-echo "# Project Title" > README.md
+echo "# MLOps Project Title" > README.md
 ```
 - __What it does:__ Creates a README file with a project title. Git will track this file.
+<br/> __MLOps reason__
+<br/> Every production ML system must be explainable to:
+- reviewers
+- future teammates
+- auditors
 ```ruby
 dir
 ```
-- __What it does:__ Lists files in your folder so you can confirm the structure.
+- __What it does:__ Lists files in your folder so you can confirm the structure. 
 
-## 3. First commit
+## 4. First commit ((baseline snapshot))
 ```ruby
 git add .
 ```
@@ -42,91 +63,152 @@ git add .
 git commit -m "init: scaffold mlops project structure"
 ```
 - __What it does:__ Saves the staged files as a snapshot in the repository. The message explains why this commit exists.
+<br/> __MLOps reason:__ Establishes a clean, stable baseline for all future changes.
 ```ruby
 git log --oneline
 ```
 - __What it does:__ Shows the commit history in a concise format. Should show your first commit.
 
-## 4. Checking status
+## 5. Checking status
 ```ruby
 git status
 git branch
 ```
+__What it does:__
+Confirms: your current branch working tree state
+<br/> __MLOps rule:__
+Never commit without checking where you are.
 
-## 4. Feature branch workflow
+## 6. Feature branch workflow 
 ```ruby
-git checkout -b feature/<name>   # create and switch
+git checkout develop
+git pull
+git checkout -b feature/<feature-name>  # create and switch
 ```
-- __What it does:__ Creates a new branch called feature/<name> and switches you to it.
+- __What it does:__ Creates a new or feature branch called feature/<name> from ```develop```, not ```main``` and switches you to it.
 - __Use case:__ Isolate work for a new feature (e.g., new data validation pipeline or API endpoint).
-```ruby
-git branch
-```
+<br/> __MLOps reason:__
+<br/> Feature branches isolate risk:
+- new pipelines
+- model changes
+- API updates
+__🚫 Never branch from main__
 
-## 5. Working on the feature branch
+## 7. Working on the feature branch
 ```ruby
 git status
 ```
-- __What it does:__ Shows which files changed and are ready to stage.
+- __What it does:__ Shows which files changed and are ready to stage./Shows modified and untracked files.
 ```ruby
 git add <file>
 ```
-- __What it does:__ Stage a single file for commit. Use ```git add .``` for all changes.
+- __What it does:__ Stage a single file for commit. Use ```git add .``` only for all changes.
 ```ruby
 git commit -m "feature: add healthcheck API endpoint"
 ```
 - __What it does:__ Commits your staged changes with a meaningful message explaining the feature.
+Commits a single, well-scoped change.
 
-## 6. Merge feature back into main
+<br/> __MLOps rule__
+<br/> One commit = one system behavior change.
+
+## 8. Push feature branch & open Pull Request
+```ruby
+git push -u origin feature/<feature-name>
+```
+**What it does:** Pushes your feature branch to the remote repository.
+**Next step (conceptual)**
+<br/>Open a Pull Request:
+```
+# php template
+feature/<feature-name> → develop
+```
+__MLOps reason__
+- PRs are quality gates.
+- They prevent silent failures and enforce review discipline.
+
+## 9. Merge feature into ```develop``` not ```main```
 ```ruby
 git switch main
 ```
 - **What it does:** Switches back to main. Always merge into main, never work on it directly.
 ```ruby
-git merge feature/<name>
+git checkout develop
+git merge feature/<feature-name>
 ```
-__What it does:__ Combines the feature branch changes into main.
-
-## 7. Resolving merge conflicts
-- __Git will mark conflicts in files like this:__
+__What it does:__ Integrates/combines the feature into the integration branch.
 ```ruby
-___Text___
+git branch -d feature/<feature-name>
+```
+__What it does:__ Deletes the feature branch after merge.
+__MLOps rule:__ Feature branches are disposable.
+
+## 10. Release to production (main) — deliberate step
+```ruby
+git checkout main
+git merge develop
+```
+__What it does:__
+Promotes tested code to production.
+```ruby
+git tag v0.1.0
+```
+__What it does:__ Creates a release tag.
+<br/> __MLOps reason__
+<br/> Tags link:
+- deployed code
+- pipelines
+- models
+  for audit and rollback.
+
+## 11. Resolving merge conflicts
+```
+text
 <<<<<<< HEAD
-main branch code
+develop branch code
 =======
 feature branch code
 >>>>>>> feature/<name>
 ```
+__How to resolve__
+1. Edit the file and keep the correct version
+2. Stage the fix:
+```ruby
+git add <file>
+```
+3. Complete the merge
+```ruby
+git commit -m "merge: resolve <feature> conflict"
+```
+__MLOps Rule__
+<br/> Resolve conflicts in `develop`, never directly in `main`.
 
-- __How to resolve:__
-  1. Edit the file to keep the correct version.
-  2. Stage the fixed file: ```git add <file>```
-  3. Complete merge: ```git commit -m "merge: resolve <feature> conflict"```
-
-## 8. Checking history and status
+## 12. Checking/Inspectig history and status
 ```ruby
 git log --oneline --graph --decorate
 ```
-- __What it does:__ Shows a visual history of branches, merges, and commits. Crucial for understanding project evolution.
+- __What it does:__ Shows branch structure (visuals), merges, and commits. Crucial for understanding project evolution.
+__MLOps reason__
+<br/>Used to trace:
+- pipeline changes
+- training logic evolution
+- production releases
 
 ```ruby
 git status
 ```
 - __Always run__ before committing or merging to avoid mistakes.
 
-## Pro tip (Week 1 MLOps mindset)
-- Always branch from ```main```
-- Keep commits small and descriptive
-- Never commit broken code to ```main```
-- Use ```git log``` to verify history before merging
-- Treat ```main``` as deployable at all times
+## 13. Correct Week-1 MLOps Mindset (Fixed)
 
-git commit -m "feature: <what changed>"
-git switch main                  # go back to main
-git merge feature/<name>         # merge feature into main
-```
+### ✅ Do
+- Always branch from `develop`  
+- Keep commits small and descriptive  
+- Never commit broken code  
+- Use pull requests (PRs), even when working solo  
+- Treat `main` as production-ready at all times  
 
-## Handling merge conflicts
-__1. Edit conflicting files__
-__2. git add <file>__
-__3. git commit -m "merge: resolve conflict"__
+### 🚫 Don’t
+- Never work directly on `main`  
+- Never merge feature branches straight into `main`  
+
