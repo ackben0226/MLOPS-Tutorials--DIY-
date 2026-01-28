@@ -15,7 +15,7 @@ git branch -m main   # rename default branch to main
 ```
 - __What it does:__ Renames the default branch ```master``` to ```main```. This is standard in modern Git workflows.
 <br/> __MLOps reason__
-- main represents ___production-ready, deployable ML systems__.
+- `main` represents ___production-ready, deployable ML systems__.
 ```ruby
 git status
 ```
@@ -36,6 +36,8 @@ This prevents breaking production ML systems.
 ## 2. Create project folder structure
 ```ruby
 mkdir app pipelines src tests
+# for powershell use this:
+mkdir app; mkdir pipelines; mkdir src; mkdir tests
 ````
 - __What it does:__ Creates folders for inference, training pipelines, shared logic, and tests.
 <br/> __MLOps reason__
